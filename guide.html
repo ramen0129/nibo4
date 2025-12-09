@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI School - 使い方ガイド</title>
+    <link rel="stylesheet" href="index.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Outfit:wght@700&display=swap"
+        rel="stylesheet">
+    <style>
+        .video-placeholder {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: #000;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+            box-shadow: var(--shadow-glow);
+            border: 1px solid var(--color-border);
+        }
+
+        .play-btn {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .play-btn:hover {
+            transform: scale(1.1);
+            background: var(--color-primary);
+        }
+
+        .play-btn::after {
+            content: '';
+            border-style: solid;
+            border-width: 15px 0 15px 25px;
+            border-color: transparent transparent transparent white;
+            margin-left: 5px;
+        }
+
+        .step-container {
+            display: grid;
+            grid-template-columns: 80px 1fr;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+            align-items: start;
+        }
+
+        .step-number {
+            font-family: var(--font-heading);
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--color-primary);
+            text-align: right;
+            line-height: 1;
+        }
+
+        .step-content {
+            background: var(--color-surface);
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-border);
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="container nav-content">
+            <a href="index.html" class="logo">
+                <img src="assets/ramen_icon.png" alt="Ramen Icon">
+                <span>AI Ramen School</span>
+            </a>
+            <nav class="nav-links">
+                <a href="index.html">ホーム (Tips)</a>
+                <a href="simulation.html">学校シミュレーター</a>
+                <a href="guide.html" class="active">使い方ガイド</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="hero text-center" style="padding-bottom: var(--spacing-md);">
+            <h1>サイトの使い方</h1>
+            <p>このサイトを授業や研修で活用するためのステップです。</p>
+        </section>
+
+        <section style="padding-top: 0;">
+            <div class="video-placeholder animate-fade-in" onclick="alert('動画再生機能は開発中です。実際の動画ファイルがあればここに埋め込みます。')">
+                <div class="play-btn"></div>
+                <!-- Mock thumbnails or overlay could go here -->
+                <p
+                    style="position: absolute; bottom: 20px; left: 20px; color: white; background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 4px;">
+                    📹 チュートリアル動画 (3分)</p>
+            </div>
+        </section>
+
+        <section>
+            <div class="step-container">
+                <div class="step-number">01</div>
+                <div class="step-content">
+                    <h3>まずは「体験」から</h3>
+                    <p style="color: var(--color-text-muted); margin-top: 10px;">
+                        <a href="index.html#prompt-chef" style="color: var(--color-primary);">Prompt
+                            Chef</a>を使って、プロンプトの組み立て方を体験してください。「役割」「指示」「制約」の3つの要素がいかに結果を変えるか、実際に手を動かして学びましょう。
+                    </p>
+                </div>
+            </div>
+
+            <div class="step-container">
+                <div class="step-number">02</div>
+                <div class="step-content">
+                    <h3>立場の違いを知る</h3>
+                    <p style="color: var(--color-text-muted); margin-top: 10px;">
+                        <a href="simulation.html"
+                            style="color: var(--color-primary);">学校シミュレーター</a>で、教師側と行政側それぞれの視点に立ってみましょう。AI導入には技術的な課題だけでなく、組織的なバランス感覚が必要であることを体感できます。
+                    </p>
+                </div>
+            </div>
+
+            <div class="step-container">
+                <div class="step-number">03</div>
+                <div class="step-content">
+                    <h3>議論のきっかけに</h3>
+                    <p style="color: var(--color-text-muted); margin-top: 10px;">
+                        このサイトでの体験をもとに、職員室や教室で話し合ってみてください。「私たちの学校ならどうする？」「このプロンプトはもっと良くできる？」その対話こそが、AIリテラシーへの第一歩です。
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section class="text-center"
+            style="padding: var(--spacing-lg) 0; background: rgba(255, 94, 58, 0.05); border-radius: var(--radius-lg); margin-bottom: var(--spacing-xl);">
+            <h2>さあ、始めましょう！</h2>
+            <p style="margin: 20px 0;">アカウント登録は不要です。すぐに体験できます。</p>
+            <a href="index.html" class="btn">トップページへ戻る</a>
+        </section>
+    </main>
+
+    <footer
+        style="border-top: 1px solid var(--color-border); padding: var(--spacing-md) 0; text-align: center; color: var(--color-text-muted);">
+        <div class="container">
+            <p>&copy; 2024 AI Ramen School. All rights reserved.</p>
+        </div>
+    </footer>
+    <script src="script.js"></script>
+</body>
+
+</html>

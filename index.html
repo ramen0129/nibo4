@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Ramen School - 生成AI学習サイト</title>
+    <link rel="stylesheet" href="index.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Outfit:wght@700&display=swap" rel="stylesheet">
+    <style>
+        /* Specific Styles for Prompt Chef */
+        .chef-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-md);
+        }
+        
+        .ingredients-list, .ramen-bowl-area {
+            background: var(--color-surface);
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-border);
+        }
+
+        .ingredient {
+            padding: 10px;
+            background: var(--color-surface-hover);
+            margin-bottom: 8px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            border: 1px solid transparent;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ingredient:hover {
+            border-color: var(--color-primary);
+        }
+
+        .ingredient.selected {
+            background: rgba(255, 94, 58, 0.2);
+            border-color: var(--color-primary);
+        }
+
+        .bowl-preview {
+            margin-top: var(--spacing-md);
+            border-top: 2px dashed var(--color-border);
+            padding-top: var(--spacing-md);
+        }
+        
+        .prompt-output {
+            background: #000;
+            color: #0f0;
+            font-family: monospace;
+            padding: var(--spacing-sm);
+            border-radius: var(--radius-sm);
+            min-height: 100px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container nav-content">
+            <a href="index.html" class="logo">
+                <img src="assets/ramen_icon.png" alt="Ramen Icon">
+                <span>AI Ramen School</span>
+            </a>
+            <nav class="nav-links">
+                <a href="index.html" class="active">ホーム (Tips)</a>
+                <a href="simulation.html">学校シミュレーター</a>
+                <a href="guide.html">使い方ガイド</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero container animate-fade-in">
+            <h1>生成AIを、美味しく学ぼう。</h1>
+            <p>ラーメンを作るように、プロンプトを組み立てる。学校でのAI活用を体験的に学べるプラットフォームです。</p>
+            <a href="#prompt-chef" class="btn">今すぐ調理を始める</a>
+        </section>
+
+        <section id="tips" class="container">
+            <h2 class="text-center" style="margin-bottom: var(--spacing-lg);">AI活用の3つの極意</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--spacing-md);">
+                <div class="card">
+                    <h3 style="color: var(--color-primary);">1. 具材を選ぶ (指示出し)</h3>
+                    <p style="color: var(--color-text-muted); margin-top: 10px;">
+                        あなたの指示が曖昧だと、味のしないラーメンになってしまいます。役割、背景、出力形式を明確に伝えましょう。
+                    </p>
+                </div>
+                <div class="card">
+                    <h3 style="color: var(--color-secondary);">2. 味見をする (クリティカルシンキング)</h3>
+                    <p style="color: var(--color-text-muted); margin-top: 10px;">
+                        AIは自信満々に嘘をつくことがあります（ハルシネーション）。出されたものをそのまま飲み込まず、必ず自分の舌で確かめましょう。
+                    </p>
+                </div>
+                <div class="card">
+                    <h3 style="color: var(--color-tertiary);">3. アレンジを楽しむ (対話)</h3>
+                    <p style="color: var(--color-text-muted); margin-top: 10px;">
+                        一度で完璧な答えが出なくても大丈夫。追加の注文（追加プロンプト）をして、理想の味に近づけていきましょう。
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section id="prompt-chef" class="container" style="padding-bottom: var(--spacing-xl);">
+            <div class="card animate-fade-in">
+                <div class="text-center">
+                    <span style="background: var(--color-primary); padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold;">インタラクティブ体験</span>
+                    <h2 style="margin-top: 10px;">Prompt Chef: プロンプト調理場</h2>
+                    <p style="color: var(--color-text-muted);">
+                        左の具材（要素）を選んで、右のボウル（プロンプト）に入れてみましょう。<br>
+                        良い具材の組み合わせが、美味しい回答を生み出します。
+                    </p>
+                </div>
+
+                <div class="chef-container">
+                    <div class="ingredients-list">
+                        <h4>① スープ (役割・前提)</h4>
+                        <div class="ingredient" onclick="addIngredient('role', 'あなたはベテランの学校教師です。')">
+                            <span>👩‍🏫 ベテラン教師</span>
+                            <small>+</small>
+                        </div>
+                        <div class="ingredient" onclick="addIngredient('role', 'あなたは優秀なデータサイエンティストです。')">
+                            <span>💻 データ分析官</span>
+                            <small>+</small>
+                        </div>
+
+                        <h4 style="margin-top: 20px;">② 麺 (具体的な指示)</h4>
+                        <div class="ingredient" onclick="addIngredient('task', '文化祭の新しいスローガンを5つ提案してください。')">
+                            <span>🍜 アイデア出し (文化祭)</span>
+                            <small>+</small>
+                        </div>
+                        <div class="ingredient" onclick="addIngredient('task', '以下の文章を小学生でもわかるように要約してください。')">
+                            <span>🍜 文章要約</span>
+                            <small>+</small>
+                        </div>
+
+                        <h4 style="margin-top: 20px;">③ トッピング (制約・形式)</h4>
+                        <div class="ingredient" onclick="addIngredient('constraint', 'ポジティブで、漢字をあまり使わないでください。')">
+                            <span>🥚 やさしい表現</span>
+                            <small>+</small>
+                        </div>
+                        <div class="ingredient" onclick="addIngredient('constraint', '箇条書きで、それぞれの理由も添えてください。')">
+                            <span>🥬 理由付き箇条書き</span>
+                            <small>+</small>
+                        </div>
+                    </div>
+
+                    <div class="ramen-bowl-area">
+                        <h4>完成したプロンプト</h4>
+                        <div class="prompt-output" id="output">
+                            （ここに具材が追加されます...）
+                        </div>
+                        <div style="margin-top: 20px; text-align: right;">
+                            <button class="btn btn-secondary" onclick="resetBowl()">すべてリセット 🗑️</button>
+                            <button class="btn" onclick="serveRamen()">へいお待ち！（生成シミュレーション） 🍜</button>
+                        </div>
+                        <div id="ai-response" style="margin-top: 20px; padding: 15px; background: #333; border-radius: 8px; display: none;">
+                            <h5 style="color: var(--color-tertiary);">AIの回答:</h5>
+                            <p id="response-text" style="font-size: 0.9rem; margin-top: 5px;"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer style="border-top: 1px solid var(--color-border); padding: var(--spacing-md) 0; text-align: center; color: var(--color-text-muted);">
+        <div class="container">
+            <p>&copy; 2024 AI Ramen School. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        // Prompt Chef Logic
+        let bowl = {
+            role: '',
+            task: '',
+            constraint: ''
+        };
+
+        function addIngredient(type, text) {
+            bowl[type] = text;
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            const out = document.getElementById('output');
+            let content = '';
+            if (bowl.role) content += `# 前提\n${bowl.role}\n\n`;
+            if (bowl.task) content += `# 指示\n${bowl.task}\n\n`;
+            if (bowl.constraint) content += `# 制約条件\n${bowl.constraint}`;
+            
+            out.innerText = content || '（ここに具材が追加されます...）';
+        }
+
+        function resetBowl() {
+            bowl = { role: '', task: '', constraint: '' };
+            updateDisplay();
+            document.getElementById('ai-response').style.display = 'none';
+        }
+
+        function serveRamen() {
+            if (!bowl.task) {
+                alert('麺（指示）が入っていません！これではラーメンではありません！');
+                return;
+            }
+            
+            const responseBox = document.getElementById('ai-response');
+            const responseText = document.getElementById('response-text');
+            
+            responseBox.style.display = 'block';
+            responseText.innerText = '調理中... 生成しています...';
+            
+            setTimeout(() => {
+                // Simple mock responses based on ingredients
+                let mockResponse = "";
+                if (bowl.task.includes("文化祭")) {
+                    mockResponse = "1. 未来へ翔け！銀河鉄道。\n2. 青春フルスロットル！\n3. 笑顔満開、夢花火。\n4. Our Story, Your Memory.\n5. 無限大のキャンバスを描こう。";
+                } else {
+                    mockResponse = "要約しました：\n\nむかしむかし、あるところに...（というように、分かりやすく説明されています。）";
+                }
+                
+                if (bowl.constraint.includes("やさしい")) {
+                    mockResponse = "1. みらいへ GO！\n2. みんな にこにこ。\n3. ゆめ いっぱい！"; 
+                }
+                
+                responseText.innerText = mockResponse;
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

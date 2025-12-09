@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI School - シミュレーション</title>
+    <link rel="stylesheet" href="index.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Outfit:wght@700&display=swap"
+        rel="stylesheet">
+    <style>
+        .sim-container {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-md);
+        }
+
+        .status-panel {
+            background: var(--color-surface);
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            height: fit-content;
+            border: 1px solid var(--color-border);
+            position: sticky;
+            top: 100px;
+        }
+
+        .metric-bar {
+            height: 10px;
+            background: #444;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 5px;
+            margin-bottom: 15px;
+        }
+
+        .metric-fill {
+            height: 100%;
+            width: 50%;
+            transition: width 0.5s ease, background-color 0.3s;
+        }
+
+        .game-area {
+            background: var(--color-surface);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+            text-align: center;
+            min-height: 500px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border: 1px solid var(--color-border);
+            position: relative;
+        }
+
+        .scenario-card {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .choice-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            width: 100%;
+            text-align: left;
+            transition: all 0.3s;
+            margin-bottom: 15px;
+        }
+
+        .choice-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--color-primary);
+            transform: translateX(5px);
+        }
+
+        .role-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .role-card {
+            cursor: pointer;
+            padding: 30px;
+            border: 2px solid var(--color-border);
+            border-radius: var(--radius-md);
+            transition: all 0.3s;
+        }
+
+        .role-card:hover {
+            border-color: var(--color-tertiary);
+            transform: scale(1.05);
+        }
+
+        .tag {
+            font-size: 0.8rem;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-right: 5px;
+            background: #333;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="container nav-content">
+            <a href="index.html" class="logo">
+                <img src="assets/ramen_icon.png" alt="Ramen Icon">
+                <span>AI Ramen School</span>
+            </a>
+            <nav class="nav-links">
+                <a href="index.html">ホーム (Tips)</a>
+                <a href="simulation.html" class="active">学校シミュレーター</a>
+                <a href="guide.html">使い方ガイド</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="hero" style="padding-top: var(--spacing-md); padding-bottom: var(--spacing-md);">
+            <h1>School Governance Simulator</h1>
+            <p>学校側と行政側、それぞれの立場を体験して、最適なAI導入を目指せ。</p>
+        </section>
+
+        <div id="setup-view">
+            <h2 class="text-center" style="margin-bottom: 30px;">あなたの立場を選んでください</h2>
+            <div class="role-selector">
+                <div class="role-card" onclick="startGame('school')">
+                    <div style="font-size: 3rem; margin-bottom: 15px;">🏫</div>
+                    <h3>現場の教師</h3>
+                    <p style="color: var(--color-text-muted); margin-top: 10px;">
+                        「目の前の生徒のために、便利な道具はすぐに使いたい！」<br>
+                        イノベーション重視、現場の効率化が最優先。
+                    </p>
+                </div>
+                <div class="role-card" onclick="startGame('admin')">
+                    <div style="font-size: 3rem; margin-bottom: 15px;">🏛️</div>
+                    <h3>教育委員会 (行政)</h3>
+                    <p style="color: var(--color-text-muted); margin-top: 10px;">
+                        「もし何かあったら責任問題だ。慎重に進めなければ...」<br>
+                        安全性・公平性重視、リスク回避が最優先。
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div id="game-view" class="sim-container hidden">
+            <!-- Status Panel -->
+            <div class="status-panel">
+                <h3 style="margin-bottom: 20px;">現在のステータス</h3>
+
+                <div>
+                    <label>💡 イノベーション</label>
+                    <div class="metric-bar">
+                        <div class="metric-fill" id="bar-innovation"
+                            style="background: var(--color-secondary); width: 50%;"></div>
+                    </div>
+                </div>
+
+                <div>
+                    <label>🛡️ 安全性・セキュリティ</label>
+                    <div class="metric-bar">
+                        <div class="metric-fill" id="bar-safety" style="background: var(--color-primary); width: 50%;">
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label>🤝 保護者の信頼</label>
+                    <div class="metric-bar">
+                        <div class="metric-fill" id="bar-trust" style="background: var(--color-tertiary); width: 50%;">
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 30px; font-size: 0.9rem; color: var(--color-text-muted);">
+                    <p>※ バランスが崩れるとゲームオーバーになります。</p>
+                    <p id="turn-counter" style="margin-top: 10px; font-weight: bold; color: white;">残りターン: 5</p>
+                </div>
+            </div>
+
+            <!-- Game Area -->
+            <div class="game-area" id="scenario-area">
+                <!-- Content injected by JS -->
+            </div>
+        </div>
+
+        <div id="result-view" class="container hidden text-center" style="margin-top: 50px;">
+            <h2 id="result-title">Title</h2>
+            <p id="result-desc" style="font-size: 1.2rem; margin: 20px 0;">Desc</p>
+            <button class="btn" onclick="location.reload()">もう一度遊ぶ</button>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+    <script>
+        // Game State
+        let state = {
+            role: null,
+            metrics: { innovation: 50, safety: 50, trust: 50 },
+            turn: 0,
+            maxTurns: 5,
+            history: []
+        };
+
+        // Scenarios Database
+        const scenarios = {
+            school: [
+                {
+                    title: "生徒が読書感想文にChatGPTを使いたいと言ってきた",
+                    desc: "「先生、AIを使って構成を考えたいんですが、いいですか？」と相談されました。",
+                    choices: [
+                        {
+                            text: "「どんどん使いなさい！」と全面的に許可する",
+                            effect: { innovation: 20, safety: -10, trust: -10 },
+                            feedback: "生徒は喜びましたが、一部の保護者から「自分で考えさせてない」とクレームが..."
+                        },
+                        {
+                            text: "「構成案までならOK」と条件付きで許可する",
+                            effect: { innovation: 10, safety: 0, trust: 5 },
+                            feedback: "良いバランスです！生徒もツールの適切な使い方を学びました。"
+                        },
+                        {
+                            text: "「自分の頭で考えなさい」と禁止する",
+                            effect: { innovation: -15, safety: 10, trust: 5 },
+                            feedback: "安全ですが、生徒の探究心は少し削がれてしまったようです。"
+                        }
+                    ]
+                },
+                {
+                    title: "新しい画像生成AIツールが話題です",
+                    desc: "美術の授業で使えそうですが、著作権のルールがまだ曖昧です。",
+                    choices: [
+                        {
+                            text: "授業で大々的に導入して実験する",
+                            effect: { innovation: 25, safety: -20, trust: -5 },
+                            feedback: "面白い作品ができましたが、生成画像が既存作品に似ていて問題になりそうです。"
+                        },
+                        {
+                            text: "校長と相談してから、希望者のみでクラブ活動で試す",
+                            effect: { innovation: 10, safety: 5, trust: 5 },
+                            feedback: "スモールスタートが良い結果を生みました。"
+                        }
+                    ]
+                },
+                {
+                    title: "教務の事務作業効率化",
+                    desc: "成績表のコメント作成をAIに手伝ってもらいたいという声が職員室で上がっています。",
+                    choices: [
+                        {
+                            text: "個人情報を伏せた状態で使うルールを作って導入",
+                            effect: { innovation: 15, safety: 10, trust: 0 },
+                            feedback: "効率が劇的に上がりました！先生たちに笑顔が戻りました。"
+                        },
+                        {
+                            text: "個人情報の漏洩が怖いので、全面的に禁止する",
+                            effect: { innovation: -10, safety: 5, trust: -5 },
+                            feedback: "先生たちは疲弊したままです..."
+                        }
+                    ]
+                },
+                {
+                    title: "保護者会での説明",
+                    desc: "保護者から「AIなんて学校で教える必要があるのか？」と質問が出ました。",
+                    choices: [
+                        {
+                            text: "「これからの時代に必須です！」と強く主張する",
+                            effect: { innovation: 5, safety: 0, trust: -10 },
+                            feedback: "少し強引すぎたかも？不安を感じる保護者もいます。"
+                        },
+                        {
+                            text: "メリットとリスクを丁寧に説明し、対話する",
+                            effect: { innovation: 5, safety: 5, trust: 20 },
+                            feedback: "誠実な態度が信頼を勝ち取りました。"
+                        }
+                    ]
+                },
+                {
+                    title: "予算申請",
+                    desc: "来年度の予算申請です。何に一番予算を使いますか？",
+                    choices: [
+                        {
+                            text: "有料版AIツールのライセンス購入",
+                            effect: { innovation: 20, safety: 5, trust: 0 },
+                            feedback: "最新機能が使えるようになりました！"
+                        },
+                        {
+                            text: "教員向けのセキュリティ研修とガイドライン作成",
+                            effect: { innovation: 0, safety: 20, trust: 10 },
+                            feedback: "地味ですが、土台がしっかりしました。"
+                        }
+                    ]
+                }
+            ],
+            admin: [
+                {
+                    title: "全校導入の提案",
+                    desc: "ある先進的な学校から「全校生徒に生成AIアカウントを配りたい」と要望が来ました。",
+                    choices: [
+                        {
+                            text: "即座に承認する",
+                            effect: { innovation: 25, safety: -25, trust: -10 },
+                            feedback: "現場は盛り上がっていますが、アカウント管理の不備でトラブル発生！"
+                        },
+                        {
+                            text: "モデル校としてその1校だけで試験導入する",
+                            effect: { innovation: 15, safety: 0, trust: 5 },
+                            feedback: "賢明な判断です。データを集めてから他校へ広げましょう。"
+                        },
+                        {
+                            text: "時期尚早として却下する",
+                            effect: { innovation: -20, safety: 20, trust: 5 },
+                            feedback: "現場のやる気を削いでしまったようです。"
+                        }
+                    ]
+                },
+                // Add more admin scenarios similarly... 
+                // For brevity in this artifact, reusing similar logic but simpler for prototype
+                {
+                    title: "セキュリティガイドラインの策定",
+                    desc: "国の指針が変わりました。どう対応しますか？",
+                    choices: [
+                        {
+                            text: "現場の実情に合わせて、柔軟な独自ルールを作る",
+                            effect: { innovation: 10, safety: -5, trust: 10 },
+                            feedback: "現場からは感謝されましたが、セキュリティの穴がないか心配です。"
+                        },
+                        {
+                            text: "国の指針通り、厳格に制限する",
+                            effect: { innovation: -15, safety: 25, trust: 5 },
+                            feedback: "安全ですが、使いにくいと不満の声が上がっています。"
+                        }
+                    ]
+                },
+                {
+                    title: "トラブル発生！",
+                    desc: "ある生徒がAIで不適切な画像を作成したという噂が流れました。",
+                    choices: [
+                        {
+                            text: "全校のAI利用を直ちに停止させる",
+                            effect: { innovation: -30, safety: 30, trust: 10 },
+                            feedback: "素早い対応で炎上は防ぎましたが、学習も止まってしまいました。"
+                        },
+                        {
+                            text: "事実確認を行い、リテラシー教育の機会にする",
+                            effect: { innovation: 5, safety: 5, trust: 15 },
+                            feedback: "ピンチをチャンスに変えました。教育的な対応です。"
+                        }
+                    ]
+                }
+            ]
+        };
+
+        function startGame(role) {
+            state.role = role;
+            document.getElementById('setup-view').classList.add('hidden');
+            document.getElementById('game-view').classList.remove('hidden');
+
+            // Adjust max turns based on available scenarios
+            state.maxTurns = role === 'admin' ? 3 : 5;
+
+            renderScenario();
+            updateStats();
+        }
+
+        function renderScenario() {
+            if (state.turn >= state.maxTurns) {
+                endGame();
+                return;
+            }
+
+            const currentScenario = scenarios[state.role][state.turn];
+            const area = document.getElementById('scenario-area');
+
+            let choicesHtml = currentScenario.choices.map((c, idx) => `
+                <button class="choice-btn" onclick="makeChoice(${idx})">
+                    <strong style="font-size: 1.1rem; display:block; width:100%; margin-bottom:5px;">▶ ${c.text}</strong>
+                </button>
+            `).join('');
+
+            area.innerHTML = `
+                <div class="scenario-card animate-fade-in">
+                    <span style="color: var(--color-tertiary); font-weight: bold; display: block; margin-bottom: 10px;">TURN ${state.turn + 1} / ${state.maxTurns}</span>
+                    <h2 style="margin-bottom: 15px;">${currentScenario.title}</h2>
+                    <p style="font-size: 1.1rem; margin-bottom: 30px; color: var(--color-text-muted);">${currentScenario.desc}</p>
+                    <div style="display: flex; flex-direction: column; gap: 10px; max-width: 600px; margin: 0 auto;">
+                        ${choicesHtml}
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('turn-counter').innerText = `残りターン: ${state.maxTurns - state.turn}`;
+        }
+
+        function makeChoice(choiceIdx) {
+            const scenario = scenarios[state.role][state.turn];
+            const choice = scenario.choices[choiceIdx];
+
+            // Apply effects
+            state.metrics.innovation = Math.max(0, Math.min(100, state.metrics.innovation + choice.effect.innovation));
+            state.metrics.safety = Math.max(0, Math.min(100, state.metrics.safety + choice.effect.safety));
+            state.metrics.trust = Math.max(0, Math.min(100, state.metrics.trust + choice.effect.trust));
+
+            state.turn++;
+            updateStats();
+
+            // Show feedback
+            const area = document.getElementById('scenario-area');
+            area.innerHTML = `
+                <div class="scenario-card animate-fade-in">
+                    <h2 style="color: var(--color-secondary); margin-bottom: 20px;">結果</h2>
+                    <p style="font-size: 1.2rem; margin-bottom: 30px;">${choice.feedback}</p>
+                    <button class="btn" onclick="renderScenario()">次へ進む</button>
+                </div>
+            `;
+
+            checkGameOver();
+        }
+
+        function updateStats() {
+            document.getElementById('bar-innovation').style.width = state.metrics.innovation + '%';
+            document.getElementById('bar-safety').style.width = state.metrics.safety + '%';
+            document.getElementById('bar-trust').style.width = state.metrics.trust + '%';
+        }
+
+        function checkGameOver() {
+            if (state.metrics.innovation <= 0 || state.metrics.safety <= 0 || state.metrics.trust <= 0) {
+                endGame(true);
+            }
+        }
+
+        function endGame(isGameOver = false) {
+            document.getElementById('game-view').classList.add('hidden');
+            const resultView = document.getElementById('result-view');
+            resultView.classList.remove('hidden');
+
+            const title = document.getElementById('result-title');
+            const desc = document.getElementById('result-desc');
+
+            if (isGameOver) {
+                title.innerText = "GAME OVER...";
+                title.style.color = "var(--color-primary)";
+                desc.innerText = "バランスが崩壊してしまいました。学校運営には「革新」「安全」「信頼」全てのバランスが必要です。";
+            } else {
+                title.innerText = "MISSION COMPLETED!";
+                title.style.color = "var(--color-tertiary)";
+
+                let score = state.metrics.innovation + state.metrics.safety + state.metrics.trust;
+                let rank = "B";
+                if (score > 250) rank = "S (伝説の教育者)";
+                else if (score > 200) rank = "A (素晴らしい運営)";
+                else if (score > 150) rank = "B (安定した運営)";
+                else rank = "C (まだまだこれから)";
+
+                desc.innerHTML = `お疲れ様でした！<br>最終スコアランク: <strong>${rank}</strong><br><br>あなたの選択が、これからのAI時代の教育を作っていきます。`;
+            }
+        }
+    </script>
+</body>
+
+</html>
